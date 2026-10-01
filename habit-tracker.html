@@ -1,0 +1,1246 @@
+<title>Mis Hábitos Diarios</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Nunito+Sans:wght@400;500;600&display=swap">
+
+<style>
+/* === TOKENS === */
+/* Layout: full-width card grid with sticky header, one tab per category */
+:root {
+  --bg: #F7F5FF;
+  --surface: #FFFFFF;
+  --surface2: #F0EDF9;
+  --border: #E2DAFF;
+  --fg: #1A1435;
+  --fg2: #5B5278;
+  --accent: #7C5CBF;
+  --accent-light: #EDE8FF;
+  --accent-glow: rgba(124,92,191,0.15);
+
+  --c-water:   #3B9ECC;
+  --c-sleep:   #6B5DD3;
+  --c-exercise:#38A169;
+  --c-hygiene: #D69E2E;
+  --c-supps:   #C05621;
+  --c-groom:   #B83280;
+  --c-clean:   #2C7A7B;
+  --c-academic:#2B6CB0;
+
+  --radius: 14px;
+  --font-head: 'Nunito', sans-serif;
+  --font-body: 'Nunito Sans', sans-serif;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #100D1E;
+    --surface: #1C1735;
+    --surface2: #251F40;
+    --border: #312A55;
+    --fg: #EDE8FF;
+    --fg2: #A899D4;
+    --accent: #A07EE8;
+    --accent-light: #251F40;
+    --accent-glow: rgba(160,126,232,0.2);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #100D1E;
+  --surface: #1C1735;
+  --surface2: #251F40;
+  --border: #312A55;
+  --fg: #EDE8FF;
+  --fg2: #A899D4;
+  --accent: #A07EE8;
+  --accent-light: #251F40;
+  --accent-glow: rgba(160,126,232,0.2);
+  color-scheme: dark;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: var(--font-body);
+  background: var(--bg);
+  color: var(--fg);
+  min-height: 100%;
+  padding-inline: 16px;
+  padding-block: 0;
+}
+
+/* HEADER */
+.app-header {
+  position: sticky;
+  top: env(safe-area-inset-top, 0px);
+  background: var(--bg);
+  padding-block: 14px;
+  z-index: 100;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-inline: -16px;
+  padding-inline: 16px;
+}
+
+.header-title {
+  font-family: var(--font-head);
+  font-weight: 800;
+  font-size: 1.1rem;
+  color: var(--fg);
+}
+
+.header-date {
+  font-size: 0.8rem;
+  color: var(--fg2);
+  font-weight: 600;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.streak-badge {
+  background: var(--accent-light);
+  color: var(--accent);
+  font-family: var(--font-head);
+  font-weight: 800;
+  font-size: 0.75rem;
+  padding: 4px 10px;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* PROGRESS RING */
+.day-progress {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px 16px 16px;
+  gap: 8px;
+}
+
+.progress-ring-wrap {
+  position: relative;
+  width: 110px;
+  height: 110px;
+}
+
+.progress-ring-wrap svg {
+  transform: rotate(-90deg);
+}
+
+.progress-ring-bg { fill: none; stroke: var(--surface2); stroke-width: 10; }
+.progress-ring-fill {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 10;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.5s ease;
+}
+
+.progress-center {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-head);
+}
+
+.progress-pct {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: var(--accent);
+}
+
+.progress-label {
+  font-size: 0.65rem;
+  color: var(--fg2);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.progress-msg {
+  font-size: 0.85rem;
+  color: var(--fg2);
+  font-weight: 600;
+  text-align: center;
+}
+
+/* CATEGORY TABS */
+.tabs-wrap {
+  overflow-x: auto;
+  margin-inline: -16px;
+  padding-inline: 16px;
+  scrollbar-width: none;
+  padding-bottom: 4px;
+}
+.tabs-wrap::-webkit-scrollbar { display: none; }
+
+.tabs {
+  display: flex;
+  gap: 8px;
+  min-width: max-content;
+  padding-block: 8px;
+}
+
+.tab-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border-radius: 999px;
+  border: 1.5px solid var(--border);
+  background: var(--surface);
+  color: var(--fg2);
+  font-family: var(--font-head);
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.18s;
+}
+
+.tab-btn .tab-icon { font-size: 1rem; }
+
+.tab-btn.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+.tab-btn:hover:not(.active) {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* PANELS */
+.panels { padding-block: 8px 80px; }
+
+.panel { display: none; }
+.panel.active { display: block; }
+
+/* CATEGORY HEADER */
+.cat-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 14px;
+  padding: 16px;
+  background: var(--surface);
+  border-radius: var(--radius);
+  border: 1.5px solid var(--border);
+}
+
+.cat-icon-big {
+  font-size: 2rem;
+  width: 50px;
+  height: 50px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.cat-title { font-family: var(--font-head); font-weight: 800; font-size: 1.05rem; }
+.cat-subtitle { font-size: 0.78rem; color: var(--fg2); margin-top: 2px; }
+
+.cat-prog-mini {
+  margin-left: auto;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.mini-frac {
+  font-family: var(--font-head);
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: var(--accent);
+}
+
+.mini-label {
+  font-size: 0.65rem;
+  color: var(--fg2);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* HABIT ITEMS */
+.habit-list { display: flex; flex-direction: column; gap: 10px; }
+
+.habit-item {
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.habit-item:hover { border-color: var(--accent); background: var(--accent-light); }
+
+.habit-item.done {
+  border-color: transparent;
+  background: var(--accent-light);
+}
+
+.habit-check {
+  width: 26px;
+  height: 26px;
+  border-radius: 8px;
+  border: 2.5px solid var(--border);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  font-size: 1rem;
+}
+
+.habit-item.done .habit-check {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.habit-item.done .habit-check::after { content: '✓'; color: #fff; font-weight: 800; font-size: 0.9rem; }
+
+.habit-text { flex: 1; min-width: 0; }
+.habit-name { font-weight: 700; font-size: 0.9rem; }
+.habit-note { font-size: 0.75rem; color: var(--fg2); margin-top: 2px; }
+
+.habit-item.done .habit-name { color: var(--accent); }
+.habit-item.done .habit-note { color: var(--fg2); }
+
+.habit-tag {
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 999px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  background: var(--accent-light);
+  color: var(--accent);
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+/* WATER TRACKER */
+.water-track {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 8px;
+  padding: 16px;
+  background: var(--surface);
+  border-radius: var(--radius);
+  border: 1.5px solid var(--border);
+  margin-bottom: 10px;
+}
+
+.water-glass {
+  aspect-ratio: 1;
+  border-radius: 10px;
+  border: 2px solid var(--border);
+  background: var(--surface2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+  cursor: pointer;
+  transition: all 0.18s;
+}
+
+.water-glass.filled {
+  background: rgba(59,158,204,0.18);
+  border-color: var(--c-water);
+}
+
+.water-glass:hover { transform: scale(1.08); }
+
+.water-count {
+  font-family: var(--font-head);
+  font-weight: 800;
+  font-size: 0.9rem;
+  color: var(--c-water);
+  text-align: center;
+  margin-top: 4px;
+}
+
+/* SUPPLEMENTS TIMING */
+.supps-block {
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  margin-bottom: 10px;
+}
+
+.supps-time {
+  padding: 10px 16px;
+  background: var(--surface2);
+  font-family: var(--font-head);
+  font-weight: 700;
+  font-size: 0.8rem;
+  color: var(--fg2);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  border-bottom: 1px solid var(--border);
+}
+
+.supps-list { padding: 8px 0; }
+
+/* SLEEP INPUTS */
+.sleep-inputs {
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+  margin-bottom: 10px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.time-input-group label {
+  display: block;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--fg2);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 6px;
+}
+
+.time-input-group input[type="time"] {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1.5px solid var(--border);
+  background: var(--surface2);
+  color: var(--fg);
+  font-family: var(--font-head);
+  font-size: 1.1rem;
+  font-weight: 700;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.time-input-group input:focus { border-color: var(--accent); }
+
+.sleep-hours {
+  grid-column: 1 / -1;
+  text-align: center;
+  font-family: var(--font-head);
+  font-weight: 800;
+  font-size: 1.4rem;
+  color: var(--c-sleep);
+}
+
+.sleep-hours span { font-size: 0.8rem; font-weight: 600; color: var(--fg2); }
+
+/* BOTTOM NAV (reset day) */
+.bottom-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0; right: 0;
+  padding: 12px 16px;
+  padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+  background: var(--bg);
+  border-top: 1px solid var(--border);
+  display: flex;
+  gap: 10px;
+  z-index: 100;
+}
+
+.btn-reset {
+  flex: 1;
+  padding: 12px;
+  border-radius: 12px;
+  border: 1.5px solid var(--border);
+  background: var(--surface);
+  color: var(--fg2);
+  font-family: var(--font-head);
+  font-weight: 700;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.18s;
+}
+
+.btn-reset:hover { border-color: var(--accent); color: var(--accent); }
+
+.btn-save {
+  flex: 2;
+  padding: 12px;
+  border-radius: 12px;
+  border: none;
+  background: var(--accent);
+  color: #fff;
+  font-family: var(--font-head);
+  font-weight: 800;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: opacity 0.18s;
+}
+
+.btn-save:hover { opacity: 0.88; }
+
+.toast {
+  position: fixed;
+  bottom: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--fg);
+  color: var(--bg);
+  padding: 10px 20px;
+  border-radius: 999px;
+  font-family: var(--font-head);
+  font-weight: 700;
+  font-size: 0.82rem;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s;
+  white-space: nowrap;
+  z-index: 200;
+}
+
+.toast.show { opacity: 1; }
+
+@media (prefers-reduced-motion: reduce) {
+  .progress-ring-fill { transition: none; }
+  .habit-item { transition: none; }
+}
+</style>
+
+<!-- APP -->
+<header class="app-header">
+  <div>
+    <div class="header-title">✨ Mis Hábitos</div>
+    <div class="header-date" id="headerDate"></div>
+  </div>
+  <div class="header-right">
+    <div class="streak-badge">🔥 <span id="streakCount">0</span> días</div>
+  </div>
+</header>
+
+<div class="day-progress">
+  <div class="progress-ring-wrap">
+    <svg viewBox="0 0 110 110" width="110" height="110">
+      <circle class="progress-ring-bg" cx="55" cy="55" r="45"/>
+      <circle class="progress-ring-fill" id="ringFill" cx="55" cy="55" r="45"
+        stroke-dasharray="282.7"
+        stroke-dashoffset="282.7"/>
+    </svg>
+    <div class="progress-center">
+      <div class="progress-pct" id="pctText">0%</div>
+      <div class="progress-label">hoy</div>
+    </div>
+  </div>
+  <div class="progress-msg" id="progressMsg">¡Empieza tu día! 💪</div>
+</div>
+
+<!-- CATEGORY TABS -->
+<div class="tabs-wrap">
+  <div class="tabs" id="tabs">
+    <button class="tab-btn active" data-panel="agua" onclick="switchTab(this)">
+      <span class="tab-icon">💧</span> Agua
+    </button>
+    <button class="tab-btn" data-panel="sueno" onclick="switchTab(this)">
+      <span class="tab-icon">🌙</span> Sueño
+    </button>
+    <button class="tab-btn" data-panel="ejercicio" onclick="switchTab(this)">
+      <span class="tab-icon">🏃</span> Ejercicio
+    </button>
+    <button class="tab-btn" data-panel="aseo" onclick="switchTab(this)">
+      <span class="tab-icon">🚿</span> Aseo
+    </button>
+    <button class="tab-btn" data-panel="suplementos" onclick="switchTab(this)">
+      <span class="tab-icon">💊</span> Suplementos
+    </button>
+    <button class="tab-btn" data-panel="arreglo" onclick="switchTab(this)">
+      <span class="tab-icon">✨</span> Arreglo
+    </button>
+    <button class="tab-btn" data-panel="limpieza" onclick="switchTab(this)">
+      <span class="tab-icon">🧹</span> Limpieza
+    </button>
+    <button class="tab-btn" data-panel="academico" onclick="switchTab(this)">
+      <span class="tab-icon">📚</span> Académico
+    </button>
+  </div>
+</div>
+
+<div class="panels">
+
+  <!-- AGUA -->
+  <div class="panel active" id="panel-agua">
+    <div class="cat-head">
+      <div class="cat-icon-big" style="background:rgba(59,158,204,0.15)">💧</div>
+      <div>
+        <div class="cat-title">Hidratación</div>
+        <div class="cat-subtitle">Meta: 8 vasos al día</div>
+      </div>
+      <div class="cat-prog-mini">
+        <div class="mini-frac" id="waterFrac" style="color:var(--c-water)">0/8</div>
+        <div class="mini-label">vasos</div>
+      </div>
+    </div>
+    <div class="water-track" id="waterGrid"></div>
+    <div class="water-count" id="waterMsg">¡Toma tu primer vaso! 💧</div>
+    <div class="habit-list">
+      <div class="habit-item" id="h-water-bottle" onclick="toggleHabit(this)">
+        <div class="habit-check"></div>
+        <div class="habit-text">
+          <div class="habit-name">Botella de acero en el escritorio</div>
+          <div class="habit-note">Tenerla visible reduce el olvido</div>
+        </div>
+        <div class="habit-tag">DURANTE</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SUEÑO -->
+  <div class="panel" id="panel-sueno">
+    <div class="cat-head">
+      <div class="cat-icon-big" style="background:rgba(107,93,211,0.15)">🌙</div>
+      <div>
+        <div class="cat-title">Sueño</div>
+        <div class="cat-subtitle">Meta: 7-9 horas de descanso real</div>
+      </div>
+    </div>
+    <div class="sleep-inputs">
+      <div class="time-input-group">
+        <label>Me acosté</label>
+        <input type="time" id="sleepTime" onchange="calcSleep()">
+      </div>
+      <div class="time-input-group">
+        <label>Me desperté</label>
+        <input type="time" id="wakeTime" onchange="calcSleep()">
+      </div>
+      <div class="sleep-hours" id="sleepResult"><span>Registra tus horas 💤</span></div>
+    </div>
+    <div class="habit-list">
+      <div class="habit-item" id="h-sleep-mag" onclick="toggleHabit(this)">
+        <div class="habit-check"></div>
+        <div class="habit-text">
+          <div class="habit-name">Magnesio después de cena</div>
+          <div class="habit-note">Magnesio glicinato → relajación y menos bruxismo</div>
+        </div>
+        <div class="habit-tag">NOCHE</div>
+      </div>
+      <div class="habit-item" id="h-sleep-screen" onclick="toggleHabit(this)">
+        <div class="habit-check"></div>
+        <div class="habit-text">
+          <div class="habit-name">Sin pantallas 30 min antes</div>
+          <div class="habit-note">Modo avión + luz cálida</div>
+        </div>
+        <div class="habit-tag">NOCHE</div>
+      </div>
+      <div class="habit-item" id="h-sleep-plugs" onclick="toggleHabit(this)">
+        <div class="habit-check"></div>
+        <div class="habit-text">
+          <div class="habit-name">Tapones de oídos listos</div>
+          <div class="habit-note">Secar oídos antes de colocarlos</div>
+        </div>
+        <div class="habit-tag">NOCHE</div>
+      </div>
+      <div class="habit-item" id="h-sleep-quality" onclick="toggleHabit(this)">
+        <div class="habit-check"></div>
+        <div class="habit-text">
+          <div class="habit-name">Desperté descansada</div>
+          <div class="habit-note">Registra si hubo tensión nocturna o rechinar</div>
+        </div>
+        <div class="habit-tag">MAÑANA</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- EJERCICIO -->
+  <div class="panel" id="panel-ejercicio">
+    <div class="cat-head">
+      <div class="cat-icon-big" style="background:rgba(56,161,105,0.15)">🏃</div>
+      <div>
+        <div class="cat-title">Ejercicio</div>
+        <div class="cat-subtitle">Meta: mínimo 30 minutos</div>
+      </div>
+      <div class="cat-prog-mini">
+        <div class="mini-frac" id="exercFrac" style="color:var(--c-exercise)">0/1</div>
+        <div class="mini-label">sesión</div>
+      </div>
+    </div>
+    <div class="habit-list">
+      <div class="habit-item" id="h-ex-done" onclick="toggleHabit(this)">
+        <div class="habit-check"></div>
+        <div class="habit-text">
+          <div class="habit-name">Hice ejercicio hoy</div>
+          <div class="habit-note">Caminata, baile, estiramiento, cardio, lo que sea ≥30 min</div>
+        </div>
+        <div class="habit-tag">LOGRADO</div>
+      </div>
+      <div class="habit-item" id="h-ex-medias" onclick="toggleHabit(this)">
+        <div class="habit-check"></div>
+        <div class="habit-text">
+          <div class="habit-name">Medias de compresión si estoy mucho tiempo de pie</div>
+          <div class="habit-note">Talla M, ponlas antes de levantarte</div>
+        </div>
+        <div class="habit-tag">OPCIONAL</div>
+      </div>
+      <div class="habit-item" id="h-ex-posture" onclick="toggleHabit(this)">
+        <div class="habit-check"></div>
+        <div class="habit-text">
+          <div class="habit-name">Pausas activas cada 90 min</div>
+          <div class="habit-note">Levantarte, estirar, caminar 2-3 min</div>
+        </div>
+        <div class="habit-tag">TRABAJO</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ASEO PERSONAL -->
+  <div class="panel" id="panel-aseo">
+    <div class="cat-head">
+      <div class="cat-icon-big" style="background:rgba(214,158,46,0.15)">🚿</div>
+      <div>
+        <div class="cat-title">Aseo Personal</div>
+        <div class="cat-subtitle">Rutina de higiene diaria y semanal</div>
+      </div>
+    </div>
+    <div class="habit-list">
+      <div class="habit-item" id="h-aseo-bath" onclick="toggleHabit(this)">
+        <div class="habit-check"></div>
+        <div class="habit-text"><div class="habit-name">Ducharme</div></div>
+        <div class="habit-tag">DIARIO</div>
+      </div>
+      <div class="habit-item" id="h-aseo-oral" onclick="toggleHabit(this)">
+        <div class="habit-check"></div>
+        <div class="habit-text">
+          <div class="habit-name">Higiene oral completa</div>
+          <div class="habit-note">Cepillado + hilo dental (3 veces al día: mañana, tarde y noche)</div>
+        </div>
+        <div class="habit-tag">DIARIO</div>
+      </div>
+      <div class="habit-item" id="h-aseo-hair" onclick="toggleHabit(this)">
+        <div class="habit-check"></div>
+        <div class="habit-text">
+          <div class="habit-name">Lavado de cabello</div>
+          <div class="habit-note">Cada 2 días con shampoo para dermatitis seborreica</div>
+        </div>
+        <div class="habit-tag">CADA 2 DÍAS</div>
+      </div>
+      <div class="habit-item" id="h-aseo-exfol" onclick="toggleHabit(this)">
+        <div class="habit-check"></div>
+        <div class="habit-text">
+          <div class="habit-name">Exfoliación corporal</div>
+          <div class="habit-note">1 vez por semana</div>
+        </div>
+        <div class="habit-tag">SEMANAL</div>
+      </div>
+      <div class="habit-item" id="h-aseo-depi" onclick="toggleHabit(this)">
+        <div class="habit-check"></div>
+        <div class="habit-text"><div class="habit-name">Depilación (cuando corresponda)</div></div>
+        <div class="habit-tag">SEMANAL</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SUPLEMENTOS -->
+  <div class="panel" id="panel-suplementos">
+    <div class="cat-head">
+      <div class="cat-icon-big" style="background:rgba(192,86,33,0.15)">💊</div>
+      <div>
+        <div class="cat-title">Suplementos</div>
+        <div class="cat-subtitle">3 momentos clave del día</div>
+      </div>
+    </div>
+
+    <div class="supps-block">
+      <div class="supps-time">☀️ Antes del desayuno</div>
+      <div class="supps-list habit-list" style="padding:10px 12px">
+        <div class="habit-item" id="h-s-ovasense" onclick="toggleHabit(this)">
+          <div class="habit-check"></div>
+          <div class="habit-text">
+            <div class="habit-name">OvaSense (1 scoop)</div>
+            <div class="habit-note">En agua, en ayunas → inositol para PCOS</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="supps-block">
+      <div class="supps-time">🍳 Durante el desayuno</div>
+      <div class="supps-list habit-list" style="padding:10px 12px">
+        <div class="habit-item" id="h-s-omega1" onclick="toggleHabit(this)">
+          <div class="habit-check"></div>
+          <div class="habit-text">
+            <div class="habit-name">Omega 3 (1ra dosis)</div>
+            <div class="habit-note">Con comida grasa para mejor absorción</div>
+          </div>
+        </div>
+        <div class="habit-item" id="h-s-mag-t" onclick="toggleHabit(this)" style="margin-top:8px">
+          <div class="habit-check"></div>
+          <div class="habit-text">
+            <div class="habit-name">Magnesio L-Treonato (2 cápsulas)</div>
+            <div class="habit-note">Función cognitiva, enfoque TDAH</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="supps-block">
+      <div class="supps-time">🍽️ Durante el almuerzo</div>
+      <div class="supps-list habit-list" style="padding:10px 12px">
+        <div class="habit-item" id="h-s-omega2" onclick="toggleHabit(this)">
+          <div class="habit-check"></div>
+          <div class="habit-text">
+            <div class="habit-name">Omega 3 (2da dosis)</div>
+          </div>
+        </div>
+        <div class="habit-item" id="h-s-zinc" onclick="toggleHabit(this)" style="margin-top:8px">
+          <div class="habit-check"></div>
+          <div class="habit-text">
+            <div class="habit-name">Zinc Gluconato</div>
+            <div class="habit-note">Con comida, separado del magnesio</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="supps-block">
+      <div class="supps-time">🌙 Después de la cena</div>
+      <div class="supps-list habit-list" style="padding:10px 12px">
+        <div class="habit-item" id="h-s-magly" onclick="toggleHabit(this)">
+          <div class="habit-check"></div>
+          <div class="habit-text">
+            <div class="habit-name">Magnesio Glicinato (1 cápsula)</div>
+            <div class="habit-note">Relajación, menos tensión nocturna y bruxismo</div>
+          </div>
+        </div>
+        <div class="habit-item" id="h-s-gel" onclick="toggleHabit(this)" style="margin-top:8px">
+          <div class="habit-check"></div>
+          <div class="habit-text">
+            <div class="habit-name">Gelatina en agua</div>
+            <div class="habit-note">Colágeno para articulaciones y piel</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ARREGLO -->
+  <div class="panel" id="panel-arreglo">
+    <div class="cat-head">
+      <div class="cat-icon-big" style="background:rgba(184,50,128,0.15)">✨</div>
+      <div>
+        <div class="cat-title">Arreglo Personal</div>
+        <div class="cat-subtitle">Rutina estética: piel, cabello y presentación</div>
+      </div>
+    </div>
+    <div class="habit-list">
+      <div class="habit-item" id="h-arr-skin" onclick="toggleHabit(this)">
+        <div class="habit-check"></div>
+        <div class="habit-text">
+          <div class="habit-name">Limpieza facial + hidratante</div>
+          <div class="habit-note">Mañana y noche</div>
+        </div>
+        <div class="habit-tag">DIARIO</div>
+      </div>
+      <div class="habit-item" id="h-arr-spf" onclick="toggleHabit(this)">
+        <div class="habit-check"></div>
+        <div class="habit-text">
+          <div class="habit-name">Protector solar FPS 70</div>
+          <div class="habit-note">Neutrogena Sun Fresh con color → antes de salir</div>
+        </div>
+        <div class="habit-tag">DIARIO</div>
+      </div>
+      <div class="habit-item" id="h-arr-deo" onclick="toggleHabit(this)">
+        <div class="habit-check"></div>
+        <div class="habit-text"><div class="habit-name">Desodorante</div></div>
+        <div class="habit-tag">DIARIO</div>
+      </div>
+      <div class="habit-item" id="h-arr-hair" onclick="toggleHabit(this)">
+        <div class="habit-check"></div>
+        <div class="habit-text">
+          <div class="habit-name">Peinar y secar cabello</div>
+          <div class="habit-note">Desenredar con calma</div>
+        </div>
+        <div class="habit-tag">DIARIO</div>
+      </div>
+      <div class="habit-item" id="h-arr-retinol" onclick="toggleHabit(this)">
+        <div class="habit-check"></div>
+        <div class="habit-text">
+          <div class="habit-name">Retinol Neutrogena</div>
+          <div class="habit-note">Solo en la noche, después del hidratante</div>
+        </div>
+        <div class="habit-tag">NOCHE</div>
+      </div>
+      <div class="habit-item" id="h-arr-foot" onclick="toggleHabit(this)">
+        <div class="habit-check"></div>
+        <div class="habit-text">
+          <div class="habit-name">Crema y talco en pies</div>
+          <div class="habit-note">Mexsana u otro antifúngico</div>
+        </div>
+        <div class="habit-tag">NOCHE</div>
+      </div>
+      <div class="habit-item" id="h-arr-brows" onclick="toggleHabit(this)">
+        <div class="habit-check"></div>
+        <div class="habit-text"><div class="habit-name">Maquillaje / arreglo facial completo</div></div>
+        <div class="habit-tag">CUANDO SALGO</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LIMPIEZA -->
+  <div class="panel" id="panel-limpieza">
+    <div class="cat-head">
+      <div class="cat-icon-big" style="background:rgba(44,122,123,0.15)">🧹</div>
+      <div>
+        <div class="cat-title">Limpieza y Orden</div>
+        <div class="cat-subtitle">Hábitos de mantenimiento del espacio</div>
+      </div>
+    </div>
+    <div class="habit-list">
+      <div class="habit-item" id="h-cl-desk" onclick="toggleHabit(this)">
+        <div class="habit-check"></div>
+        <div class="habit-text"><div class="habit-name">Limpiar escritorio</div></div>
+        <div class="habit-tag">SEMANAL</div>
+      </div>
+      <div class="habit-item" id="h-cl-sweep" onclick="toggleHabit(this)">
+        <div class="habit-check"></div>
+        <div class="habit-text"><div class="habit-name">Barrer cuarto</div></div>
+        <div class="habit-tag">SEMANAL</div>
+      </div>
+      <div class="habit-item" id="h-cl-ropa" onclick="toggleHabit(this)">
+        <div class="habit-check"></div>
+        <div class="habit-text"><div class="habit-name">Ropa: lavar o doblar</div></div>
+        <div class="habit-tag">SEMANAL</div>
+      </div>
+      <div class="habit-item" id="h-cl-sabanas" onclick="toggleHabit(this)">
+        <div class="habit-check"></div>
+        <div class="habit-text"><div class="habit-name">Lavar ropa de cama</div></div>
+        <div class="habit-tag">SEMANAL</div>
+      </div>
+      <div class="habit-item" id="h-cl-cepillo" onclick="toggleHabit(this)">
+        <div class="habit-check"></div>
+        <div class="habit-text">
+          <div class="habit-name">Desinfectar cepillo de dientes</div>
+          <div class="habit-note">Cada 2 semanas con peróxido de hidrógeno al 3%</div>
+        </div>
+        <div class="habit-tag">QUINCENAL</div>
+      </div>
+      <div class="habit-item" id="h-cl-copa" onclick="toggleHabit(this)">
+        <div class="habit-check"></div>
+        <div class="habit-text">
+          <div class="habit-name">Esterilizar copa menstrual</div>
+          <div class="habit-note">Al inicio y fin del ciclo</div>
+        </div>
+        <div class="habit-tag">MENSUAL</div>
+      </div>
+      <div class="habit-item" id="h-cl-bottle" onclick="toggleHabit(this)">
+        <div class="habit-check"></div>
+        <div class="habit-text">
+          <div class="habit-name">Limpiar botella de agua</div>
+          <div class="habit-note">Incluye gomas y pitillo</div>
+        </div>
+        <div class="habit-tag">SEMANAL</div>
+      </div>
+      <div class="habit-item" id="h-cl-tapones" onclick="toggleHabit(this)">
+        <div class="habit-check"></div>
+        <div class="habit-text">
+          <div class="habit-name">Limpiar tapones de oídos</div>
+          <div class="habit-note">Lavar suavemente con agua y jabón neutro, secar bien antes de usar</div>
+        </div>
+        <div class="habit-tag">DIARIO</div>
+      </div>
+      <div class="habit-item" id="h-cl-orden" onclick="toggleHabit(this)">
+        <div class="habit-check"></div>
+        <div class="habit-text">
+          <div class="habit-name">Organizar algo del desmadre</div>
+          <div class="habit-note">Una superficie, una esquina, una pila — lo que sea, sin presión</div>
+        </div>
+        <div class="habit-tag">DIARIO</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ACADÉMICO -->
+  <div class="panel" id="panel-academico">
+    <div class="cat-head">
+      <div class="cat-icon-big" style="background:rgba(43,108,176,0.15)">📚</div>
+      <div>
+        <div class="cat-title">Académico / Trabajo</div>
+        <div class="cat-subtitle">Aprendizaje y desarrollo profesional</div>
+      </div>
+    </div>
+    <div class="habit-list">
+      <div class="habit-item" id="h-ac-reading" onclick="toggleHabit(this)">
+        <div class="habit-check"></div>
+        <div class="habit-text">
+          <div class="habit-name">Lectura (al menos 15 min)</div>
+          <div class="habit-note">Libro, artículo o material de estudio</div>
+        </div>
+        <div class="habit-tag">DIARIO</div>
+      </div>
+      <div class="habit-item" id="h-ac-english" onclick="toggleHabit(this)">
+        <div class="habit-check"></div>
+        <div class="habit-text">
+          <div class="habit-name">Inglés</div>
+          <div class="habit-note">Práctica diaria: video, app, conversación, escritura</div>
+        </div>
+        <div class="habit-tag">DIARIO</div>
+      </div>
+      <div class="habit-item" id="h-ac-pbi" onclick="toggleHabit(this)">
+        <div class="habit-check"></div>
+        <div class="habit-text">
+          <div class="habit-name">Power BI</div>
+          <div class="habit-note">Ejercicio o lección del día</div>
+        </div>
+        <div class="habit-tag">DIARIO</div>
+      </div>
+      <div class="habit-item" id="h-ac-writing" onclick="toggleHabit(this)">
+        <div class="habit-check"></div>
+        <div class="habit-text">
+          <div class="habit-name">Escritura / journaling</div>
+          <div class="habit-note">Ideas, reflexiones, planning del día</div>
+        </div>
+        <div class="habit-tag">DIARIO</div>
+      </div>
+      <div class="habit-item" id="h-ac-grd" onclick="toggleHabit(this)">
+        <div class="habit-check"></div>
+        <div class="habit-text">
+          <div class="habit-name">Técnico en GRD</div>
+          <div class="habit-note">Gestión del Riesgo de Desastres — lección, lectura o tarea del día</div>
+        </div>
+        <div class="habit-tag">DIARIO</div>
+      </div>
+      <div class="habit-item" id="h-ac-focus" onclick="toggleHabit(this)">
+        <div class="habit-check"></div>
+        <div class="habit-text">
+          <div class="habit-name">Bloque de trabajo profundo (≥ 1h)</div>
+          <div class="habit-note">Sin interrupciones, timer visible → TDAH friendly</div>
+        </div>
+        <div class="habit-tag">TRABAJO</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- BOTTOM BAR -->
+<div class="bottom-bar">
+  <button class="btn-reset" onclick="confirmReset()">🔄 Nuevo día</button>
+  <button class="btn-save" onclick="saveProgress()">💾 Guardar progreso</button>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ============ STATE ============
+const ALL_HABITS = [
+  'h-water-bottle',
+  'h-sleep-mag','h-sleep-screen','h-sleep-plugs','h-sleep-quality',
+  'h-ex-done','h-ex-medias','h-ex-posture',
+  'h-aseo-bath','h-aseo-oral','h-aseo-hair','h-aseo-exfol','h-aseo-depi',
+  'h-s-ovasense','h-s-omega1','h-s-mag-t',
+  'h-s-omega2','h-s-zinc','h-s-magly','h-s-gel',
+  'h-arr-skin','h-arr-spf','h-arr-deo','h-arr-hair','h-arr-retinol','h-arr-foot','h-arr-brows',
+  'h-cl-orden','h-cl-tapones','h-cl-desk','h-cl-sweep','h-cl-ropa','h-cl-sabanas','h-cl-cepillo','h-cl-copa','h-cl-bottle',
+  'h-ac-reading','h-ac-english','h-ac-pbi','h-ac-writing','h-ac-grd','h-ac-focus'
+];
+
+let state = { habits: {}, water: 0, sleep: '', wake: '', streak: 0, lastDate: '' };
+
+function todayStr() {
+  return new Date().toISOString().slice(0, 10);
+}
+
+function loadState() {
+  try {
+    const saved = localStorage.getItem('misHabitos_v2');
+    if (saved) {
+      const s = JSON.parse(saved);
+      const today = todayStr();
+      // If last save was today, restore; otherwise keep streak logic
+      if (s.lastDate === today) {
+        state = s;
+      } else {
+        // Check if yesterday was complete enough for streak
+        state.streak = s.streak || 0;
+        state.lastDate = today;
+      }
+    }
+  } catch(e) {}
+}
+
+function saveState() {
+  state.lastDate = todayStr();
+  try { localStorage.setItem('misHabitos_v2', JSON.stringify(state)); } catch(e) {}
+}
+
+// ============ WATER ============
+function renderWater() {
+  const grid = document.getElementById('waterGrid');
+  grid.innerHTML = '';
+  for (let i = 1; i <= 8; i++) {
+    const g = document.createElement('div');
+    g.className = 'water-glass' + (state.water >= i ? ' filled' : '');
+    g.textContent = state.water >= i ? '💧' : '○';
+    g.onclick = () => toggleWater(i);
+    grid.appendChild(g);
+  }
+  document.getElementById('waterFrac').textContent = state.water + '/8';
+  const msgs = ['¡Toma tu primer vaso! 💧', '¡Buen comienzo!', 'Ya van 2 💙', 'Mitad del camino 🌊', '4 vasos — genial ✨', '5 vasos — sigue así!', 'Casi llegas 💧', '7 vasos — un más!', '¡Meta cumplida hoy! 🎉💧'];
+  document.getElementById('waterMsg').textContent = msgs[state.water] || msgs[8];
+}
+
+function toggleWater(n) {
+  state.water = (state.water === n) ? n - 1 : n;
+  renderWater();
+  updateProgress();
+}
+
+// ============ SLEEP ============
+function calcSleep() {
+  const s = document.getElementById('sleepTime').value;
+  const w = document.getElementById('wakeTime').value;
+  state.sleep = s; state.wake = w;
+  if (!s || !w) return;
+  let [sh, sm] = s.split(':').map(Number);
+  let [wh, wm] = w.split(':').map(Number);
+  let mins = (wh * 60 + wm) - (sh * 60 + sm);
+  if (mins < 0) mins += 1440;
+  const h = Math.floor(mins / 60), m = mins % 60;
+  let quality = h >= 7 ? '✅' : h >= 6 ? '⚠️' : '😴';
+  document.getElementById('sleepResult').innerHTML = `${quality} <strong>${h}h ${m}min</strong> <span>dormidas</span>`;
+  saveState();
+}
+
+// ============ HABITS ============
+function toggleHabit(el) {
+  el.classList.toggle('done');
+  state.habits[el.id] = el.classList.contains('done');
+  updateProgress();
+  saveState();
+}
+
+function renderHabits() {
+  ALL_HABITS.forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    if (state.habits[id]) el.classList.add('done');
+    else el.classList.remove('done');
+  });
+  if (state.sleep) document.getElementById('sleepTime').value = state.sleep;
+  if (state.wake) document.getElementById('wakeTime').value = state.wake;
+  if (state.sleep && state.wake) calcSleep();
+}
+
+// ============ PROGRESS ============
+function updateProgress() {
+  const done = ALL_HABITS.filter(id => state.habits[id]).length;
+  const waterBonus = state.water >= 8 ? 1 : 0;
+  const total = ALL_HABITS.length + 1;
+  const pct = Math.round((done + waterBonus) / total * 100);
+
+  document.getElementById('pctText').textContent = pct + '%';
+  const circumference = 282.7;
+  const offset = circumference - (pct / 100) * circumference;
+  document.getElementById('ringFill').style.strokeDashoffset = offset;
+
+  const msgs = [
+    [0, '¡Empieza tu día! 💪'],
+    [20, '¡Buen comienzo Esperanza! 🌱'],
+    [40, 'Vas muy bien, sigue así ✨'],
+    [60, '¡Más de la mitad! Excelente 🌟'],
+    [80, 'Casi perfecto — el TDAH no te gana hoy 🔥'],
+    [95, '¡Día épico! Eres imparable 🏆']
+  ];
+  let msg = msgs[0][1];
+  for (const [min, text] of msgs) { if (pct >= min) msg = text; }
+  document.getElementById('progressMsg').textContent = msg;
+
+  // Exercise fraction
+  const exDone = state.habits['h-ex-done'] ? 1 : 0;
+  document.getElementById('exercFrac').textContent = exDone + '/1';
+}
+
+// ============ TABS ============
+function switchTab(btn) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('panel-' + btn.dataset.panel).classList.add('active');
+}
+
+// ============ RESET ============
+function confirmReset() {
+  const done = ALL_HABITS.filter(id => state.habits[id]).length;
+  const pct = Math.round(done / ALL_HABITS.length * 100);
+  if (pct > 30) {
+    if (!window.confirm('¿Iniciar un nuevo día? Tu progreso de hoy se guardará en el historial.')) return;
+  }
+  // Update streak
+  const today = todayStr();
+  if (state.lastDate) {
+    const last = new Date(state.lastDate);
+    const diff = Math.round((new Date(today) - last) / 86400000);
+    if (diff <= 1 && pct >= 50) state.streak = (state.streak || 0) + 1;
+    else if (diff > 1) state.streak = 0;
+  }
+  state.habits = {};
+  state.water = 0;
+  state.sleep = '';
+  state.wake = '';
+  state.lastDate = today;
+  saveState();
+  renderHabits();
+  renderWater();
+  updateProgress();
+  document.getElementById('sleepTime').value = '';
+  document.getElementById('wakeTime').value = '';
+  document.getElementById('sleepResult').innerHTML = '<span>Registra tus horas 💤</span>';
+  document.getElementById('streakCount').textContent = state.streak;
+  showToast('¡Nuevo día, nueva oportunidad! 🌅');
+}
+
+// ============ SAVE ============
+function saveProgress() {
+  saveState();
+  const done = ALL_HABITS.filter(id => state.habits[id]).length;
+  showToast(`Guardado ✓ — ${done} hábitos completados hoy`);
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+// ============ DATE ============
+function renderDate() {
+  const d = new Date();
+  const opts = { weekday: 'long', day: 'numeric', month: 'long' };
+  const str = d.toLocaleDateString('es-CO', opts);
+  document.getElementById('headerDate').textContent = str.charAt(0).toUpperCase() + str.slice(1);
+}
+
+// ============ INIT ============
+loadState();
+renderDate();
+renderHabits();
+renderWater();
+updateProgress();
+document.getElementById('streakCount').textContent = state.streak || 0;
+</script>
